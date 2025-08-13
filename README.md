@@ -40,3 +40,6 @@ Simulación interactiva sencilla de comportamiento de hormigas con feromonas.
 ## Licencia
 
 Uso libre educativo.
+
+## Online:
+https://cgarciagl.github.io/AntSystem/
