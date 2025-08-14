@@ -73,13 +73,15 @@ export class Ant {
     const lV = this.sim.pheromones.sample(leftPos.x, leftPos.y);
     const rV = this.sim.pheromones.sample(rightPos.x, rightPos.y);
     const influence = p.pheromoneInfluence;
-    const sum = cV + lV + rV + 0.0001;
+    const sum = cV + lV + rV;
+    // Si no hay señal de feromonas, no forzar giro: deja que el ruido gobierne
+    if (sum <= 1e-6) return;
     const choice = random(sum);
     let targetDir = this.dir;
     if (choice < lV) targetDir = leftDir;
     else if (choice < lV + cV) targetDir = this.dir;
     else targetDir = rightDir;
-    this.dir.lerp(targetDir, 0.15 * influence * (sum > 0 ? 1 : 0));
+    this.dir.lerp(targetDir, 0.15 * influence);
     this.dir.normalize();
   }
   draw() {
