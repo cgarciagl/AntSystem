@@ -8,7 +8,7 @@ export class Simulation {
       randomTurn: 0.12,
       evaporation: 0.97,
       deposit: 8,
-      pheromoneInfluence: 0.3,
+      pheromoneInfluence: 2.0,
       senseRadius: 18,
       senseAngle: radians(70),
     };
