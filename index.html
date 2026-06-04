@@ -1,138 +1,489 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <title>Simulación Hormigas - p5.js</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simulación Hormigas (ACO) — PixiJS</title>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111" />
+    <meta
+      name="description"
+      content="Simulación interactiva de comportamiento de hormigas con feromonas (ACO) acelerada con PixiJS"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
-    <aside id="panel">
-      <h1>Hormigas (ACO)</h1>
-      <div style="font-size: 12px; opacity: 0.8">
-        Click para añadir comida. Arrastra el nido. Ctrl+Click sobre comida para
-        eliminarla.
+    <aside id="panel" aria-label="Panel de control">
+      <header class="panel-header">
+        <h1>Hormigas (ACO)</h1>
+        <div class="panel-actions">
+          <button
+            id="themeToggle"
+            class="icon-btn"
+            data-tooltip="Cambiar tema claro / oscuro"
+            aria-label="Cambiar tema"
+          >
+            ☀
+          </button>
+          <button
+            id="panelToggle"
+            class="icon-btn"
+            data-tooltip="Ocultar / mostrar panel (H)"
+            aria-label="Ocultar panel"
+          >
+            ⟨
+          </button>
+        </div>
+      </header>
+      <p class="help-text">
+        <strong>Click</strong> añade comida ·
+        <strong>Ctrl+Click</strong> elimina · <strong>Shift+Click</strong> añade
+        obstáculo · <strong>Alt+Click</strong> seguir hormiga ·
+        <strong>Esc</strong> soltar · <strong>G</strong> grabar ·
+        <strong>P</strong> reproducir · Arrastra el nido ·
+        <strong>Doble click</strong> limpia feromonas.
+      </p>
+
+      <h2 class="collapsible" data-section="preset">Preset</h2>
+      <div class="section" data-section-body="preset">
+        <label>
+          Configuración rápida
+          <select id="presetSelect"></select>
+        </label>
       </div>
 
-      <h2>Hormiguero</h2>
-      <label>
-        Número de hormigas
-        <input
-          id="antsCount"
-          type="range"
-          min="10"
-          max="800"
-          step="10"
-          value="700"
-        />
-        <div class="row"><span id="antsCountVal">700</span></div>
-      </label>
-
-      <h2>Movimiento</h2>
-      <label>
-        Velocidad
-        <input
-          id="speed"
-          type="range"
-          min="0.5"
-          max="4"
-          step="0.1"
-          value="1.6"
-        />
-        <div class="row"><span id="speedVal">1.6</span></div>
-      </label>
-      <label>
-        Giro aleatorio
-        <input
-          id="randomTurn"
-          type="range"
-          min="0"
-          max="0.5"
-          step="0.01"
-          value="0.5"
-        />
-        <div class="row"><span id="randomTurnVal">0.5</span></div>
-      </label>
-
-      <h2>Pheromonas</h2>
-      <label>
-        Evaporación (1 = rápido)
-        <input
-          id="evaporation"
-          type="range"
-          min="0.90"
-          max="0.999"
-          step="0.001"
-          value="0.970"
-        />
-        <div class="row"><span id="evaporationVal">0.970</span></div>
-      </label>
-      <label>
-        Depositar
-        <input id="deposit" type="range" min="1" max="30" step="1" value="8" />
-        <div class="row"><span id="depositVal">8</span></div>
-      </label>
-      <label>
-        Influencia rastro
-        <input
-          id="pheromoneInfluence"
-          type="range"
-          min="0"
-          max="4"
-          step="0.1"
-          value="2.0"
-        />
-        <div class="row"><span id="pheromoneInfluenceVal">2.0</span></div>
-      </label>
-      <label>
-        Radio percepción
-        <input
-          id="senseRadius"
-          type="range"
-          min="2"
-          max="40"
-          step="1"
-          value="18"
-        />
-        <div class="row"><span id="senseRadiusVal">18</span></div>
-      </label>
-      <label>
-        Ángulo percepción (°)
-        <input
-          id="senseAngle"
-          type="range"
-          min="10"
-          max="180"
-          step="5"
-          value="70"
-        />
-        <div class="row"><span id="senseAngleVal">70</span></div>
-      </label>
-
-      <h2>Acciones</h2>
-      <div class="row" style="flex-wrap: wrap; gap: 6px">
-        <button id="resetBtn">Reset</button>
-        <button id="clearPheromonesBtn">Limpiar feromonas</button>
-        <button id="spawnFoodBtn">Añadir comida masiva</button>
+      <h2 class="collapsible" data-section="nest">Hormiguero</h2>
+      <div class="section" data-section-body="nest">
+        <label data-tooltip="Cantidad de hormigas activas (10-2000)">
+          Número de hormigas
+          <div class="control-row">
+            <input
+              id="antsCount"
+              type="range"
+              min="10"
+              max="2000"
+              step="10"
+              value="700"
+            />
+            <input
+              id="antsCountNum"
+              type="number"
+              min="10"
+              max="2000"
+              step="10"
+              value="700"
+            />
+          </div>
+        </label>
+        <label class="checkbox-label">
+          <input id="obstaclesEnabled" type="checkbox" checked />
+          Obstáculos activos
+        </label>
+        <label class="checkbox-label">
+          <input id="showTrails" type="checkbox" />
+          Mostrar estelas de hormigas
+        </label>
       </div>
 
-      <h2>Estado</h2>
-      <div style="font-size: 12px; line-height: 1.4">
-        FPS: <span id="fps">0</span><br />
-        Comida total: <span id="foodCount">0</span><br />
-        Feromonas activas: <span id="pheromoneCount">0</span><br />
+      <h2 class="collapsible" data-section="motion">Movimiento</h2>
+      <div class="section" data-section-body="motion">
+        <label data-tooltip="Velocidad base de las hormigas (px / tick)">
+          Velocidad
+          <div class="control-row">
+            <input
+              id="speed"
+              type="range"
+              min="0.5"
+              max="4"
+              step="0.1"
+              value="1.6"
+            />
+            <input
+              id="speedNum"
+              type="number"
+              min="0.5"
+              max="4"
+              step="0.1"
+              value="1.6"
+            />
+          </div>
+        </label>
+        <label
+          data-tooltip="Cuanto giran aleatoriamente: 0 = línea recta, 0.5 = errático"
+        >
+          Giro aleatorio
+          <div class="control-row">
+            <input
+              id="randomTurn"
+              type="range"
+              min="0"
+              max="0.5"
+              step="0.01"
+              value="0.5"
+            />
+            <input
+              id="randomTurnNum"
+              type="number"
+              min="0"
+              max="0.5"
+              step="0.01"
+              value="0.5"
+            />
+          </div>
+        </label>
+      </div>
+
+      <h2 class="collapsible" data-section="pheromones">Feromonas</h2>
+      <div class="section" data-section-body="pheromones">
+        <label
+          data-tooltip="Persistencia: 0.97 = se evapora rápido, 0.999 = persiste mucho"
+        >
+          Evaporación (↑ = persiste más)
+          <div class="control-row">
+            <input
+              id="evaporation"
+              type="range"
+              min="0.90"
+              max="0.999"
+              step="0.001"
+              value="0.970"
+            />
+            <input
+              id="evaporationNum"
+              type="number"
+              min="0.90"
+              max="0.999"
+              step="0.001"
+              value="0.970"
+            />
+          </div>
+        </label>
+        <label data-tooltip="Cantidad depositada por cada hormiga al pasar">
+          Depositar
+          <div class="control-row">
+            <input
+              id="deposit"
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value="8"
+            />
+            <input
+              id="depositNum"
+              type="number"
+              min="1"
+              max="30"
+              step="1"
+              value="8"
+            />
+          </div>
+        </label>
+        <label data-tooltip="Cuánto sigue cada hormiga el rastro de comida">
+          Influencia rastro (comida)
+          <div class="control-row">
+            <input
+              id="pheromoneInfluence"
+              type="range"
+              min="0"
+              max="4"
+              step="0.1"
+              value="2.0"
+            />
+            <input
+              id="pheromoneInfluenceNum"
+              type="number"
+              min="0"
+              max="4"
+              step="0.1"
+              value="2.0"
+            />
+          </div>
+        </label>
+        <label
+          data-tooltip="Cuánto siguen las hormigas el rastro hacia el nido"
+        >
+          Influencia rastro (hogar)
+          <div class="control-row">
+            <input
+              id="homeInfluence"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value="0.3"
+            />
+            <input
+              id="homeInfluenceNum"
+              type="number"
+              min="0"
+              max="2"
+              step="0.05"
+              value="0.3"
+            />
+          </div>
+        </label>
+        <label data-tooltip="Distancia a la que detectan feromonas">
+          Radio percepción
+          <div class="control-row">
+            <input
+              id="senseRadius"
+              type="range"
+              min="2"
+              max="40"
+              step="1"
+              value="18"
+            />
+            <input
+              id="senseRadiusNum"
+              type="number"
+              min="2"
+              max="40"
+              step="1"
+              value="18"
+            />
+          </div>
+        </label>
+        <label data-tooltip="Apertura del campo de visión (grados)">
+          Ángulo percepción (°)
+          <div class="control-row">
+            <input
+              id="senseAngle"
+              type="range"
+              min="10"
+              max="180"
+              step="5"
+              value="70"
+            />
+            <input
+              id="senseAngleNum"
+              type="number"
+              min="10"
+              max="180"
+              step="5"
+              value="70"
+            />
+          </div>
+        </label>
+        <label
+          data-tooltip="Cuánta comida reaparece por unidad de tiempo (0 = no regrowth)"
+        >
+          Regeneración comida
+          <div class="control-row">
+            <input
+              id="foodRegrowth"
+              type="range"
+              min="0"
+              max="0.2"
+              step="0.005"
+              value="0.00"
+            />
+            <input
+              id="foodRegrowthNum"
+              type="number"
+              min="0"
+              max="0.2"
+              step="0.005"
+              value="0.00"
+            />
+          </div>
+        </label>
+        <label class="checkbox-label">
+          <input id="showFoodPheromone" type="checkbox" checked />
+          Mostrar feromona de comida
+        </label>
+        <label class="checkbox-label">
+          <input id="showHomePheromone" type="checkbox" checked />
+          Mostrar feromona de hogar
+        </label>
+      </div>
+
+      <h2 class="collapsible" data-section="colors">Colores</h2>
+      <div class="section" data-section-body="colors">
+        <label data-tooltip="Paleta optimizada para distintos tipos de visión">
+          Paleta (accesibilidad)
+          <select id="paletteSelect"></select>
+        </label>
+        <div class="color-row">
+          <label data-tooltip="Color de las fuentes de comida">
+            Comida
+            <input id="foodColor" type="color" value="#3cb43c" />
+          </label>
+          <label data-tooltip="Tinte de la feromona que lleva a la comida">
+            Ferom. comida
+            <input id="foodPheromoneColor" type="color" value="#00b4ff" />
+          </label>
+          <label data-tooltip="Tinte de la feromona que lleva al nido">
+            Ferom. hogar
+            <input id="homePheromoneColor" type="color" value="#ffb400" />
+          </label>
+          <label data-tooltip="Color de las hormigas">
+            Hormiga
+            <input id="antColor" type="color" value="#c8c8c8" />
+          </label>
+          <label data-tooltip="Color de las hormigas cargando comida">
+            Cargando
+            <input id="carryingColor" type="color" value="#ffc83c" />
+          </label>
+        </div>
+      </div>
+
+      <h2 class="collapsible" data-section="actions">Acciones</h2>
+      <div class="section" data-section-body="actions">
+        <div class="row actions-row">
+          <button id="pauseBtn" data-tooltip="Pausar / reanudar (Espacio)">
+            ⏸ Pausa
+          </button>
+          <button id="stepBtn" data-tooltip="Avanzar 1 frame (S o →)">
+            ↪ Paso
+          </button>
+          <button id="resetBtn" data-tooltip="Reiniciar mundo y hormigas">
+            ↺ Reset
+          </button>
+          <button
+            id="resetParamsBtn"
+            data-tooltip="Volver a parámetros por defecto"
+          >
+            Reset params
+          </button>
+          <button
+            id="clearPheromonesBtn"
+            data-tooltip="Limpiar ambas feromonas"
+          >
+            Limpiar feromonas
+          </button>
+          <button
+            id="spawnFoodBtn"
+            data-tooltip="Generar 10 fuentes de comida al azar"
+          >
+            Comida masiva
+          </button>
+          <button
+            id="addWalkersBtn"
+            data-tooltip="Añadir 100 hormigas aleatorias (comparación ACO vs random walk)"
+          >
+            +100 random
+          </button>
+          <button
+            id="removeWalkersBtn"
+            data-tooltip="Quitar 100 hormigas aleatorias"
+          >
+            −100 random
+          </button>
+          <button
+            id="recBtn"
+            class="rec-btn"
+            data-tooltip="Grabar 10 s para reproducir después (R)"
+          >
+            ● Rec
+          </button>
+          <button id="playRecBtn" data-tooltip="Reproducir la grabación">
+            ▶ Play
+          </button>
+          <button id="stopRecBtn" data-tooltip="Detener reproducción">
+            ■ Stop
+          </button>
+        </div>
+      </div>
+
+      <h2 class="collapsible" data-section="status">Estado</h2>
+      <div class="section" data-section-body="status">
+        <div class="status-block">
+          <div class="stat-row">
+            <span class="stat-label">FPS</span>
+            <span id="fps" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Hormigas vivas</span>
+            <span id="antCount" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Comida recogida (ACO)</span>
+            <span id="foodCollected" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Comida recogida (random)</span>
+            <span id="foodCollectedWalkers" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Hormigas fallecidas</span>
+            <span id="antDeaths" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">— por edad</span>
+            <span id="antDeathsAge" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">— por hambre</span>
+            <span id="antDeathsHunger" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Energía media</span>
+            <span id="meanEnergy" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Comida total</span>
+            <span id="foodCount" class="stat-value">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Feromonas activas</span>
+            <span id="pheromoneCount" class="stat-value">0</span>
+          </div>
+        </div>
+        <canvas
+          id="statsGraph"
+          class="stats-graph"
+          width="248"
+          height="50"
+          aria-label="Gráfico de FPS y comida"
+        ></canvas>
+      </div>
+
+      <h2 class="collapsible" data-section="shortcuts">Atajos</h2>
+      <div class="section" data-section-body="shortcuts">
+        <ul id="shortcutsList" class="shortcuts"></ul>
       </div>
     </aside>
     <div id="canvas-wrapper">
       <div id="overlay">
         <strong>Instrucciones</strong><br />
-        Click: añadir comida (apila). Ctrl+Click: eliminar comida cercana.<br />
-        Arrastrar dentro del círculo: mover nido.<br />
-        Parámetros ajustables a la izquierda; prueba a reducir evaporación para
-        caminos persistentes.<br />
-        Botón Limpiar feromonas para observar nuevos caminos.
+        Click: añadir comida. Shift+Click: añadir obstáculo. Ctrl+Click:
+        eliminar.<br />
+        Arrastrar dentro del círculo marrón: mover nido.<br />
+        Doble click: limpiar feromonas. Espacio: pausa. H: ocultar panel.
+      </div>
+      <div
+        id="onboarding"
+        class="onboarding hidden"
+        role="dialog"
+        aria-labelledby="onboardingTitle"
+      >
+        <div class="onboarding-card">
+          <h3 id="onboardingTitle">Bienvenido</h3>
+          <p>
+            Esto es una simulación de colonia de hormigas basada en feromonas
+            (ACO). Las hormigas siguen rastros químicos para encontrar comida y
+            volver al nido.
+          </p>
+          <ul>
+            <li><strong>Click</strong> en el canvas para añadir comida.</li>
+            <li>
+              <strong>Shift+Click</strong> añade obstáculos; las hormigas los
+              esquivan.
+            </li>
+            <li>
+              Experimenta con los parámetros del panel y observa cómo emergen
+              caminos.
+            </li>
+          </ul>
+          <button id="onboardingDismiss" class="primary">Entendido</button>
+        </div>
       </div>
     </div>
   </body>

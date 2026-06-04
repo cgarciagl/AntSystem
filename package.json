@@ -1,0 +1,23 @@
+{
+  "name": "hormigas-aco",
+  "version": "1.1.0",
+  "description": "Simulación interactiva de comportamiento de hormigas con feromonas (ACO)",
+  "type": "module",
+  "packageManager": "pnpm@9.12.1",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 js/tests/",
+    "test:watch": "node --test --watch js/tests/",
+    "lint": "eslint js/",
+    "lint:fix": "eslint --fix js/",
+    "format": "prettier --write \"js/**/*.js\" index.html styles.css",
+    "format:check": "prettier --check \"js/**/*.js\" index.html styles.css"
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

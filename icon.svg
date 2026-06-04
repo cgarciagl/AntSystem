@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#111"/>
+  <circle cx="32" cy="32" r="14" fill="#785028"/>
+  <text x="32" y="36" text-anchor="middle" font-family="system-ui" font-size="10" fill="#fff">NIDO</text>
+  <circle cx="14" cy="14" r="5" fill="#3cb43c"/>
+  <circle cx="50" cy="18" r="4" fill="#3cb43c"/>
+  <circle cx="48" cy="50" r="4" fill="#3cb43c"/>
+  <circle cx="12" cy="48" r="3" fill="#3cb43c"/>
+  <path d="M16 16 Q24 24 30 30" stroke="#00b4ff" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M50 18 Q40 24 34 30" stroke="#00b4ff" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M48 50 Q40 40 34 34" stroke="#00b4ff" stroke-width="1" fill="none" opacity="0.5"/>
+</svg>
